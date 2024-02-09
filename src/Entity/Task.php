@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TaskRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -28,6 +30,17 @@ class Task
 
     #[ORM\Column(type: Types::SMALLINT, nullable: true)]
     private ?int $status = null;
+
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'tasks')]
+    private Collection $tag;
+
+    #[ORM\ManyToOne(inversedBy: 'tasks')]
+    private ?User $user = null;
+
+    public function __construct()
+    {
+        $this->tag = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -90,6 +103,42 @@ class Task
     public function setStatus(?int $status): static
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Tag>
+     */
+    public function getTag(): Collection
+    {
+        return $this->tag;
+    }
+
+    public function addTag(Tag $tag): static
+    {
+        if (!$this->tag->contains($tag)) {
+            $this->tag->add($tag);
+        }
+
+        return $this;
+    }
+
+    public function removeTag(Tag $tag): static
+    {
+        $this->tag->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
